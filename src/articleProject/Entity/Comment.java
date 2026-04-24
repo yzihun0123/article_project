@@ -5,4 +5,36 @@ public class Comment {
     private long articleId;
     private  String name;
     private String content;
+
+    public long getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(long commentId) {
+        this.commentId = commentId;
+    }
+
+    public long getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(long articleId) {
+        this.articleId = articleId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }
