@@ -6,6 +6,13 @@ public class Comment {
     private  String name;
     private String content;
 
+    public Comment(long commentId, long articleId, String name, String content) {
+        this.commentId = commentId;
+        this.articleId = articleId;
+        this.name = name;
+        this.content = content;
+    }
+
     public long getCommentId() {
         return commentId;
     }
