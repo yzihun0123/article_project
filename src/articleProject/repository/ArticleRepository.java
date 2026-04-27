@@ -9,9 +9,9 @@ import java.util.List;
 
 public class ArticleRepository implements CrudInterface {
 
-    static Long articleId = 1L;
-    static Long commentId = 1L;
-    static List<Article> articleList = new ArrayList<>();
+    public static Long articleId = 1L;
+    public static Long commentId = 1L;
+    public static List<Article> articleList = new ArrayList<>();
 
     @Override
     public List<Article> all() {
