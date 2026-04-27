@@ -79,23 +79,23 @@ public class ArticleDto extends CommonField {
 
     public ArticleDto fromArticle(Article article) {
         return new ArticleDto(
-                article.getId(),//id
-                article.getName(),//이름
-                article.getTitle(),//제목
-                article.getContent(),//내용
+                article.getId(), //id
+                article.getName(), //이름
+                article.getTitle(), //제목
+                article.getContent(), //내용
                 super.getInsertedDate(), // 등록시간
                 super.getUpdatedDate(), // 업데이트 시간
-                article.getCommentList()// 댓글 리스트
+                article.getCommentList() // 댓글 리스트
         );
     }
 
     public Article fromDto(ArticleDto dto) {
         return new Article(
-                dto.getId(),//id
-                dto.getName(),//이름
-                dto.getTitle(),//제목
-                dto.getContent(),//내용
-                dto.getCommentList()// 댓글 리스트
+                dto.getId(), //id
+                dto.getName(), //이름
+                dto.getTitle(), //제목
+                dto.getContent(), //내용
+                dto.getCommentList() // 댓글 리스트
         );
     }
 }
