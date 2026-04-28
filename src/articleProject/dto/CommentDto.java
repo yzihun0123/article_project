@@ -26,8 +26,8 @@ public class CommentDto {
 
     public Comment fromDto(CommentDto dto) {
         return new Comment(
-                dto.getArticleId(),
                 dto.getCommentId(),
+                dto.getArticleId(),
                 dto.getName(),
                 dto.getContent()
         );

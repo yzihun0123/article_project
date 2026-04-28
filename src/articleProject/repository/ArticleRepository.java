@@ -23,11 +23,9 @@ public class ArticleRepository implements CrudInterface {
         articleList.add(article);
     }
 
-    // articleList.get(i) == article
-    // article.getid()
     @Override
     public Article detail(Long id) {
-        for (int i = 0; i <= articleList.size(); i++) {
+        for (int i = 0; i < articleList.size(); i++) {
             if (id.equals(articleList.get(i).getId())) {
                 return articleList.get(i);
             }
@@ -37,7 +35,7 @@ public class ArticleRepository implements CrudInterface {
 
     @Override
     public boolean delete(Long id) {
-        for (int i = 0; i <= articleList.size(); i++) {
+        for (int i = 0; i < articleList.size(); i++) {
             if (id.equals(articleList.get(i).getId())) {
                 articleList.remove(i);
                 return true;
@@ -48,12 +46,8 @@ public class ArticleRepository implements CrudInterface {
 
     @Override
     public void update(Article article) {
-        for (int i = 0; i <= articleList.size(); i++) {
-            if (article.getId() == (articleList.get(i).getId())) {
-//                articleList.get(i).setId(article.getId());
-//                articleList.get(i).setName(article.getName());
-//                articleList.get(i).setTitle(article.getTitle());
-//                articleList.get(i).setContent(article.getContent());
+        for (int i = 0; i < articleList.size(); i++) {
+            if (article.getId() == articleList.get(i).getId()) {
                 articleList.set(i, article);
             }
         }
@@ -61,16 +55,21 @@ public class ArticleRepository implements CrudInterface {
 
     @Override
     public void insertComment(Comment comment) {
-        detail(articleId).addComments(comment);
-        commentId++;
+        Article article = detail(comment.getArticleId());
+        if (article != null) {
+            article.addComments(comment);
+            commentId++;
+        }
     }
 
     @Override
     public void updateComment(Comment comment) {
         for (Article article : articleList) {
-            for (int i = 0; i <= article.getCommentList().size(); i++) {
-                if (comment.getCommentId() == article.getCommentList().get(i).getCommentId()) {
-                    article.getCommentList().set(i, comment);
+            List<Comment> comments = article.getCommentList();
+            for (int i = 0; i < comments.size(); i++) {
+                if (comment.getCommentId() == comments.get(i).getCommentId()) {
+                    comments.set(i, comment);
+                    return;
                 }
             }
         }
@@ -79,9 +78,11 @@ public class ArticleRepository implements CrudInterface {
     @Override
     public void deleteComment(Long deleteCommentId) {
         for (Article article : articleList) {
-            for (int i = 0; i <= article.getCommentList().size(); i++) {
-                if (deleteCommentId == article.getCommentList().get(i).getCommentId()) {
-                    article.getCommentList().remove(i);
+            List<Comment> comments = article.getCommentList();
+            for (int i = 0; i < comments.size(); i++) {
+                if (deleteCommentId == comments.get(i).getCommentId()) {
+                    comments.remove(i);
+                    return;
                 }
             }
         }

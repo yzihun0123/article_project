@@ -4,7 +4,6 @@ import articleProject.Entity.Article;
 import articleProject.Entity.Comment;
 import articleProject.crudInterface.CrudInterface;
 import articleProject.db.DBConn;
-import articleProject.dto.ArticleDto;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -12,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArticleDAO implements CrudInterface {
+
     @Override
     public List<Article> all() {
         List<Article> articles = new ArrayList<>();
@@ -22,12 +22,23 @@ public class ArticleDAO implements CrudInterface {
             String sql = "SELECT * FROM article ORDER BY id DESC";
             ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
+
             while (rs.next()) {
+                Article article = new Article(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getString("title"),
+                        rs.getString("content"),
+                        new ArrayList<>()
+                );
+                articles.add(article);
             }
+            rs.close();
+            ps.close();
         } catch (Exception e) {
             System.out.println("All 오류: " + e.getMessage());
         }
-        return List.of();
+        return articles;
     }
 
     @Override
@@ -35,11 +46,12 @@ public class ArticleDAO implements CrudInterface {
         Connection conn = DBConn.getConnection();
         PreparedStatement ps = null;
         try {
-            String sql = "INSERT INTO article(name, title, content, inserted_date, updated_date) VALUES(?,?,?,?,?)";
+            String sql = "INSERT INTO article(name, title, content, inserted_date, updated_date)" +
+                    " VALUES(?,?,?,?,?)";
             ps = conn.prepareStatement(sql);
             ps.setString(1, article.getName());
-            ps.setString(2,article.getTitle());
-            ps.setString(3,article.getTitle());
+            ps.setString(2, article.getTitle());
+            ps.setString(3, article.getContent());
             ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             ps.setTimestamp(5, null);
             ps.executeUpdate();
@@ -52,44 +64,51 @@ public class ArticleDAO implements CrudInterface {
     @Override
     public Article detail(Long id) {
         Connection conn = DBConn.getConnection();
-        ResultSet articleRs = null;
         PreparedStatement articlePs = null;
-        ResultSet commentRs = null;
+        ResultSet articleRs = null;
         PreparedStatement commentPs = null;
+        ResultSet commentRs = null;
         try {
             String articleSql = "SELECT * FROM article WHERE id=?";
+            articlePs = conn.prepareStatement(articleSql);
             articlePs.setLong(1, id);
-            articleRs = articlePs.executeQuery(articleSql);
+            articleRs = articlePs.executeQuery();
+
+            if (!articleRs.next()) {
+                return null;
+            }
+
             Article article = new Article(
                     articleRs.getLong("id"),
                     articleRs.getString("name"),
                     articleRs.getString("title"),
                     articleRs.getString("content"),
-                    null
+                    new ArrayList<>()
             );
-            /* Comment 부분 처리 */
-            String commentSql = "SELECT * FROM comment WHRER article_id = ?";
-            commentPs.setLong(1,article.getId());
-            commentRs = commentPs.executeQuery(commentSql);
+
+            String commentSql = "SELECT * FROM comments WHERE article_id=?";
+            commentPs = conn.prepareStatement(commentSql);
+            commentPs.setLong(1, article.getId());
+            commentRs = commentPs.executeQuery();
+
             List<Comment> comments = new ArrayList<>();
             while (commentRs.next()) {
-                if (article.getId() == commentRs.getLong("id")) {
-                    comments.add(
-                            new Comment(
-                                    commentRs.getLong("comment_id"),
-                                    commentRs.getLong("article_id"),
-                                    commentRs.getString("name"),
-                                    commentRs.getString("content")
-                            )
-                    );
-                }
+                comments.add(new Comment(
+                        commentRs.getLong("comment_id"),
+                        commentRs.getLong("article_id"),
+                        commentRs.getString("name"),
+                        commentRs.getString("content")
+                ));
             }
+            article.setCommentList(comments);
+
             commentRs.close();
-            articleRs.close();
             commentPs.close();
             articleRs.close();
-            article.setCommentList(comments);
+            articlePs.close();
+
             return article;
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -115,26 +134,35 @@ public class ArticleDAO implements CrudInterface {
     @Override
     public void update(Article article) {
         Connection conn = DBConn.getConnection();
-        PreparedStatement ps = null;
         PreparedStatement timePs = null;
         ResultSet timeRs = null;
+        PreparedStatement ps = null;
         try {
-            String timeSql = "SELECT inserted_date FROM article WHERE id = ?";
+            String timeSql = "SELECT inserted_date FROM article WHERE id=?";
             timePs = conn.prepareStatement(timeSql);
+            timePs.setLong(1, article.getId());
             timeRs = timePs.executeQuery();
-            String sql =
-                    "UPDATE article SET name=?, title=?, content=?, inserted_date=?, updated_date=? WHERE id=?";
+
+            Timestamp insertedDate = null;
+            if (timeRs.next()) {
+                insertedDate = timeRs.getTimestamp("inserted_date");
+            }
+
+            String sql = "UPDATE article SET name=?, title=?, content=?," +
+                    " inserted_date=?, updated_date=? WHERE id=?";
             ps = conn.prepareStatement(sql);
             ps.setString(1, article.getName());
             ps.setString(2, article.getTitle());
             ps.setString(3, article.getContent());
-            ps.setTimestamp(4, timeRs.getTimestamp("inserted_date"));
+            ps.setTimestamp(4, insertedDate);
             ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             ps.setLong(6, article.getId());
             ps.executeUpdate();
-            ps.close();
-            timePs.close();
+
             timeRs.close();
+            timePs.close();
+            ps.close();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -147,9 +175,9 @@ public class ArticleDAO implements CrudInterface {
         try {
             String sql = "INSERT INTO comments(name, content, article_id) VALUES(?,?,?)";
             ps = conn.prepareStatement(sql);
-            ps.setString(1,comment.getName());
-            ps.setString(2,comment.getContent());
-            ps.setLong(3,comment.getCommentId());
+            ps.setString(1, comment.getName());
+            ps.setString(2, comment.getContent());
+            ps.setLong(3, comment.getArticleId());
             ps.executeUpdate();
             ps.close();
         } catch (Exception e) {
@@ -164,8 +192,8 @@ public class ArticleDAO implements CrudInterface {
         try {
             String sql = "UPDATE comments SET content=? WHERE comment_id=?";
             ps = conn.prepareStatement(sql);
-            ps.setString(1,comment.getContent());
-            ps.setLong(2,comment.getCommentId());
+            ps.setString(1, comment.getContent());
+            ps.setLong(2, comment.getCommentId());
             ps.executeUpdate();
             ps.close();
         } catch (Exception e) {
@@ -180,7 +208,7 @@ public class ArticleDAO implements CrudInterface {
         try {
             String sql = "DELETE FROM comments WHERE comment_id=?";
             ps = conn.prepareStatement(sql);
-            ps.setLong(1,deleteCommentId);
+            ps.setLong(1, deleteCommentId);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
