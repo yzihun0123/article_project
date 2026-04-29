@@ -16,7 +16,7 @@ public class CommentService {
         dao.updateComment(comment.fromDto(comment));
     }
 
-    public void commentDelete(Long deleteCommentId) {
-        dao.deleteComment(deleteCommentId);
+    public boolean commentDelete(Long deleteCommentId) {
+        return dao.deleteComment(deleteCommentId);
     }
 }

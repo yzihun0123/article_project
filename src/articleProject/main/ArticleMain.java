@@ -10,7 +10,7 @@ public class ArticleMain {
         ArticleView view = new ArticleView();
 
         while (true) {
-            System.out.println("========== 게시글 메뉴 ==========");
+            System.out.println("게시글 리스트");
             System.out.println("0.전체보기  1.새글  2.상세  3.삭제  4.수정  5.종료");
             System.out.print("> ");
             int menu = sc.nextInt();

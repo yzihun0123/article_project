@@ -83,8 +83,8 @@ public class ArticleDto extends CommonField {
                 article.getName(), //이름
                 article.getTitle(), //제목
                 article.getContent(), //내용
-                super.getInsertedDate(), // 등록시간
-                super.getUpdatedDate(), // 업데이트 시간
+                article.getInsertedDate(), // 등록시간
+                article.getUpdatedDate(), // 업데이트 시간
                 article.getCommentList() // 댓글 리스트
         );
     }
