@@ -3,7 +3,7 @@ package articleProject.Entity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Article {
+public class Article extends  CommonField{
     private long id;
     private String name;
     private String title;

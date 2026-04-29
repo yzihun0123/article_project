@@ -31,6 +31,12 @@ public class ArticleDAO implements CrudInterface {
                         rs.getString("content"),
                         new ArrayList<>()
                 );
+                if (rs.getTimestamp("inserted_date") != null) {
+                    article.setInsertedDate(rs.getTimestamp("inserted_date").toLocalDateTime());
+                }
+                if (rs.getTimestamp("updated_date") != null) {
+                    article.setUpdatedDate(rs.getTimestamp("updated_date").toLocalDateTime());
+                }
                 articles.add(article);
             }
             rs.close();
@@ -99,6 +105,9 @@ public class ArticleDAO implements CrudInterface {
                         commentRs.getString("name"),
                         commentRs.getString("content")
                 ));
+            }
+            if (articleRs.getTimestamp("inserted_date") != null) {
+                article.setInsertedDate(articleRs.getTimestamp("inserted_date").toLocalDateTime());
             }
             article.setCommentList(comments);
 
@@ -202,17 +211,19 @@ public class ArticleDAO implements CrudInterface {
     }
 
     @Override
-    public void deleteComment(Long deleteCommentId) {
+    public boolean deleteComment(Long deleteCommentId) {
         Connection conn = DBConn.getConnection();
+        int result = 0;
         PreparedStatement ps = null;
         try {
             String sql = "DELETE FROM comments WHERE comment_id=?";
             ps = conn.prepareStatement(sql);
             ps.setLong(1, deleteCommentId);
-            ps.executeUpdate();
+            result = ps.executeUpdate();
             ps.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return result>0;
     }
 }

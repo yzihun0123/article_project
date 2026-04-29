@@ -76,15 +76,16 @@ public class ArticleRepository implements CrudInterface {
     }
 
     @Override
-    public void deleteComment(Long deleteCommentId) {
+    public boolean deleteComment(Long deleteCommentId) {
         for (Article article : articleList) {
             List<Comment> comments = article.getCommentList();
             for (int i = 0; i < comments.size(); i++) {
                 if (deleteCommentId == comments.get(i).getCommentId()) {
                     comments.remove(i);
-                    return;
+                    return true;
                 }
             }
         }
+        return false;
     }
 }
