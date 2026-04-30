@@ -18,6 +18,8 @@ public class ArticleDAO implements CrudInterface {
         Connection conn = DBConn.getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
+        PreparedStatement commentPs = null;
+        ResultSet commentRs = null;
         try {
             String sql = "SELECT * FROM article ORDER BY id DESC";
             ps = conn.prepareStatement(sql);
@@ -37,10 +39,28 @@ public class ArticleDAO implements CrudInterface {
                 if (rs.getTimestamp("updated_date") != null) {
                     article.setUpdatedDate(rs.getTimestamp("updated_date").toLocalDateTime());
                 }
+
+                String commentSql = "SELECT * FROM comments WHERE article_id=?";
+                commentPs = conn.prepareStatement(commentSql);
+                commentPs.setLong(1, article.getId());
+                commentRs = commentPs.executeQuery();
+
+                List<Comment> comments = new ArrayList<>();
+                while (commentRs.next()) {
+                    comments.add(new Comment(
+                            commentRs.getLong("comment_id"),
+                            commentRs.getLong("article_id"),
+                            commentRs.getString("name"),
+                            commentRs.getString("content")
+                    ));
+                }
+                article.setCommentList(comments);
                 articles.add(article);
             }
             rs.close();
             ps.close();
+            commentRs.close();
+            commentPs.close();
         } catch (Exception e) {
             System.out.println("All 오류: " + e.getMessage());
         }
@@ -91,6 +111,8 @@ public class ArticleDAO implements CrudInterface {
                     articleRs.getString("content"),
                     new ArrayList<>()
             );
+
+            article.setInsertedDate(articleRs.getTimestamp("inserted_date").toLocalDateTime());
 
             String commentSql = "SELECT * FROM comments WHERE article_id=?";
             commentPs = conn.prepareStatement(commentSql);

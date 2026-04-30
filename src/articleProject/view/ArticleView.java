@@ -37,16 +37,14 @@ public class ArticleView {
                         article.getTitle(),
                         article.getInsertedDate()
                 );
-                if (article.getCommentList() != null) {
-                    for (var comment : article.getCommentList()) {
-                        CommentDto commentDto = new CommentDto(
-                                comment.getCommentId(),
-                                comment.getArticleId(),
-                                comment.getName(),
-                                comment.getContent()
-                        );
-                        System.out.println(commentDto);
-                    }
+                for (var comment : article.getCommentList()) {
+                    CommentDto commentDto = new CommentDto(
+                            comment.getCommentId(),
+                            comment.getArticleId(),
+                            comment.getName(),
+                            comment.getContent()
+                    );
+                    System.out.println(commentDto.toString());
                 }
             }
         }
@@ -172,7 +170,10 @@ public class ArticleView {
                     Long updateCommentId = Long.parseLong(sc.nextLine().trim());
                     System.out.print("수정 내용: ");
                     String updateContent = sc.nextLine();
-
+                    if (updateContent.isEmpty()) {
+                        System.out.println("내용을 입력하지 않았습니다");
+                        break;
+                    }
                     CommentDto comment = new CommentDto(
                             updateCommentId,
                             article.getId(),
