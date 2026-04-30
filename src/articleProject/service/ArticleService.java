@@ -21,7 +21,9 @@ public class ArticleService {
                         article.getId(),
                         article.getName(),
                         article.getTitle(),
-                        article.getContent()
+                        article.getContent(),
+                        article.getInsertedDate(),
+                        article.getUpdatedDate()
                 ).fromArticle(article))
                 .collect(Collectors.toList());
     }
